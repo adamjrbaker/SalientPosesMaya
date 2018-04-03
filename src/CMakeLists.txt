@@ -20,6 +20,14 @@ set(SOURCE_FILES
     "Selector.hpp"
     "Interpolator.cpp"
     "Interpolator.hpp"
+    "MayaUtils.cpp"
+    "MayaUtils.hpp"
+    "AnalysisNode.cpp"
+    "AnalysisNode.hpp"
+    "SelectorNode.cpp"
+    "SelectorNode.hpp"
+    "ReduceCommand.cpp"
+    "ReduceCommand.hpp"
     "pluginMain.cpp"
 )
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
