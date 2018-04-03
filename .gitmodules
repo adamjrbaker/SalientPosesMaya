@@ -1,0 +1,3 @@
+[submodule "SalientPosesPerformance"]
+	path = SalientPosesPerformance
+	url = git@github.com:richard-roberts/SalientPosesPerformance
