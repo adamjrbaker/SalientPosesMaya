@@ -7,6 +7,7 @@
 #include <maya/MStatus.h>
 
 #include "AnalysisNode.hpp"
+#include "SelectorNode.hpp"
 #include "MayaUtils.hpp"
 
 MStatus initializePlugin(MObject obj) {
@@ -15,6 +16,9 @@ MStatus initializePlugin(MObject obj) {
     
     status = plugin.registerNode("vuwAnalysisNode", AnalysisNode::id, AnalysisNode::creator, AnalysisNode::initialize);
     if (status != MS::kSuccess) { Log::error("vuwAnalysisNode failed to register");  }
+    
+    status = plugin.registerNode("vuwSelectorNode", SelectorNode::id, SelectorNode::creator, SelectorNode::initialize);
+    if (status != MS::kSuccess) { Log::error("vuwSelectorNode failed to register"); }
     
     AnalysisNode::openCLDirectory = plugin.loadPath();
     
@@ -27,6 +31,9 @@ MStatus uninitializePlugin(MObject obj) {
     
     status = plugin.deregisterNode(AnalysisNode::id);
     if (status != MS::kSuccess) { Log::error("vuwAnalysisNode failed to deregister"); }
+    
+    status = plugin.deregisterNode(SelectorNode::id);
+    if (status != MS::kSuccess) { Log::error("vuwSelectorNode failed to deregister"); }
     
     return status;
 }
