@@ -6,14 +6,27 @@
 #include <maya/MString.h>
 #include <maya/MStatus.h>
 
+#include "AnalysisNode.hpp"
+#include "MayaUtils.hpp"
+
 MStatus initializePlugin(MObject obj) {
     MStatus status;
     MFnPlugin plugin(obj, "Richard Roberts", "0.0.1", "201700");
+    
+    status = plugin.registerNode("vuwAnalysisNode", AnalysisNode::id, AnalysisNode::creator, AnalysisNode::initialize);
+    if (status != MS::kSuccess) { Log::error("vuwAnalysisNode failed to register");  }
+    
+    AnalysisNode::openCLDirectory = plugin.loadPath();
+    
     return status;
 }
 
 MStatus uninitializePlugin(MObject obj) {
     MStatus status;
     MFnPlugin plugin(obj);
+    
+    status = plugin.deregisterNode(AnalysisNode::id);
+    if (status != MS::kSuccess) { Log::error("vuwAnalysisNode failed to deregister"); }
+    
     return status;
 }
