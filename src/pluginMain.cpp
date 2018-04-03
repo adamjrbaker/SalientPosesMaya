@@ -8,6 +8,7 @@
 
 #include "AnalysisNode.hpp"
 #include "SelectorNode.hpp"
+#include "ReduceCommand.hpp"
 #include "MayaUtils.hpp"
 
 MStatus initializePlugin(MObject obj) {
@@ -19,6 +20,10 @@ MStatus initializePlugin(MObject obj) {
     
     status = plugin.registerNode("vuwSelectorNode", SelectorNode::id, SelectorNode::creator, SelectorNode::initialize);
     if (status != MS::kSuccess) { Log::error("vuwSelectorNode failed to register"); }
+    
+    status = plugin.registerCommand(ReduceCommand::kName, ReduceCommand::creator, ReduceCommand::newSyntax);
+    if (status != MS::kSuccess) { Log::error("vuwReduceCommand failed to register"); }
+    
     
     AnalysisNode::openCLDirectory = plugin.loadPath();
     
@@ -34,6 +39,9 @@ MStatus uninitializePlugin(MObject obj) {
     
     status = plugin.deregisterNode(SelectorNode::id);
     if (status != MS::kSuccess) { Log::error("vuwSelectorNode failed to deregister"); }
+    
+    status = plugin.deregisterCommand(ReduceCommand::kName);
+    if (status != MS::kSuccess) { Log::error("vuwReduceCommand failed to deregister"); }
     
     return status;
 }
