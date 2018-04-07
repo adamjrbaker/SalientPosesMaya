@@ -24,7 +24,7 @@
 
 #include "MayaUtils.hpp"
 #include "AnalysisNode.hpp"
-#include "ErrorTable.hpp"
+#include "../SalientPosesPerformance/src/ErrorTable.hpp"
 
 /* Logging
  *

@@ -21,8 +21,8 @@
 #include <maya/MFloatArray.h>
 
 #include "MayaUtils.hpp"
-#include "ErrorTable.hpp"
-#include "Selector.hpp"
+#include "../SalientPosesPerformance/src/ErrorTable.hpp"
+#include "../SalientPosesPerformance/src/Selector.hpp"
 #include "SelectorNode.hpp"
 
 MTypeId SelectorNode::id( 0x0012c2c1 );

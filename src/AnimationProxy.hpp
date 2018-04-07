@@ -1,1 +1,0 @@
-../SalientPosesPerformance/src/AnimationProxy.hpp

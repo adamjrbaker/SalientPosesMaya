@@ -25,7 +25,7 @@
 
 #include <Eigen/Dense>
 
-#include "Interpolator.hpp"
+#include "../SalientPosesPerformance/src/Interpolator.hpp"
 #include "MayaUtils.hpp"
 #include "ReduceCommand.hpp"
 

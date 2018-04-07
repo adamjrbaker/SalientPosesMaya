@@ -12,7 +12,7 @@
 
 #include <maya/MPxNode.h>
 
-#include "AnimationProxy.hpp"
+#include "../SalientPosesPerformance/src/AnimationProxy.hpp"
 
 class AnalysisNode : public MPxNode {
 public:
