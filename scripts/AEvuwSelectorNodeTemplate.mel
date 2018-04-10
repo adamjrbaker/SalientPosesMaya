@@ -1,0 +1,20 @@
+global proc AEvuwSelectorNodeTemplate(string $nodeName) {
+    editorTemplate -beginScrollLayout;
+        editorTemplate -beginLayout "Selector Node Attributes" -collapse false;
+            editorTemplate -beginNoOptimize;
+            editorTemplate -label "Section Offset" -addControl "startOffset";
+            editorTemplate -label "Section Start" -addControl "start";
+            editorTemplate -label "Section End" -addControl "end";
+            editorTemplate -label "Number of Keyframes" -addControl "nKeyframes";
+            editorTemplate -endNoOptimize;
+
+            editorTemplate -suppress "errorTable";
+            editorTemplate -suppress "errors";
+            editorTemplate -suppress "selection";
+        editorTemplate -endLayout;
+
+    AEweightGeometryFilterTemplate $nodeName;
+
+    editorTemplate -addExtraControls;
+    editorTemplate -endScrollLayout;
+}

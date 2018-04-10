@@ -7,19 +7,27 @@ endif()
 
 # Include our own source files
 set(SOURCE_FILES
-    "common.cpp"
-    "common.hpp"
-    "AnimationProxy.cpp"
-    "AnimationProxy.hpp"
-    "OpenCLProcess.hpp"
-    "ErrorTable.cpp"
-    "ErrorTable.hpp"
-    "SelectionProxy.cpp"
-    "SelectionProxy.hpp"
-    "Selector.cpp"
-    "Selector.hpp"
-    "Interpolator.cpp"
-    "Interpolator.hpp"
+    "../SalientPosesPerformance/src/common.cpp"
+    "../SalientPosesPerformance/src/common.hpp"
+    "../SalientPosesPerformance/src/AnimationProxy.cpp"
+    "../SalientPosesPerformance/src/AnimationProxy.hpp"
+    "../SalientPosesPerformance/src/OpenCLProcess.hpp"
+    "../SalientPosesPerformance/src/ErrorTable.cpp"
+    "../SalientPosesPerformance/src/ErrorTable.hpp"
+    "../SalientPosesPerformance/src/SelectionProxy.cpp"
+    "../SalientPosesPerformance/src/SelectionProxy.hpp"
+    "../SalientPosesPerformance/src/Selector.cpp"
+    "../SalientPosesPerformance/src/Selector.hpp"
+    "../SalientPosesPerformance/src/Interpolator.cpp"
+    "../SalientPosesPerformance/src/Interpolator.hpp"
+    "MayaUtils.cpp"
+    "MayaUtils.hpp"
+    "AnalysisNode.cpp"
+    "AnalysisNode.hpp"
+    "SelectorNode.cpp"
+    "SelectorNode.hpp"
+    "ReduceCommand.cpp"
+    "ReduceCommand.hpp"
     "pluginMain.cpp"
 )
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
@@ -43,4 +51,4 @@ MAYA_PLUGIN(${PROJECT_NAME})
 install(TARGETS ${PROJECT_NAME} ${MAYA_TARGET_TYPE} DESTINATION ./plug-ins/SalientPoses)
 
 # Finally, copy OpenCL programs into the build's directory.
-install(FILES "kernel.cl" DESTINATION ./plug-ins/SalientPoses)
+install(FILES "../SalientPosesPerformance/src/kernel.cl" DESTINATION ./plug-ins/SalientPoses)
