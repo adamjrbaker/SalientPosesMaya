@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-cd ../tests/cmt/bin && python runmayatests.py -m 2017
+cd ../tests/cmt/bin && python runmayatests.py -m $1
 
