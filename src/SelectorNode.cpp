@@ -33,6 +33,7 @@ MObject SelectorNode::iaStartOffset;
 MObject SelectorNode::iaNFramesTotal;
 MObject SelectorNode::iaErrorTable;
 MObject SelectorNode::iaNKeyframes;
+MObject SelectorNode::iaMode;
 MObject SelectorNode::oaSelectionErrors;
 MObject SelectorNode::oaSelection;
 
@@ -94,19 +95,43 @@ MStatus SelectorNode::initialize() {
     addAttribute(iaNKeyframes);
     attributeAffects(iaNKeyframes, oaSelection);
     
+    iaMode = nAttr.create("mode", "m", MFnNumericData::kInt);
+    nAttr.setReadable(true);
+    nAttr.setWritable(true);
+    nAttr.setStorable(true);
+    addAttribute(iaMode);
+    attributeAffects(iaMode, oaSelection);
+    
     return MS::kSuccess;
+}
+
+template <typename T>
+SelectionProxy * getSelectionUsingSelector(AnimationProxy anim, ErrorTable analysis, int selStart, int selEnd) {
+    T selector = Selector::fromAnal<T>(anim, analysis, selStart, selEnd);
+    return selector.execute();
 }
 
 MStatus SelectorNode::compute(const MPlug& plug, MDataBlock& data) {
     MStatus status;
     
-    if (plug == oaSelection || plug == oaSelectionErrors) {
+    if (plug == oaSelection) {
         Log::print("COMPUTING SELECTIONS");
         
         int startOffset = data.inputValue(iaStartOffset).asInt();
         int nFramesTotal = data.inputValue(iaNFramesTotal).asInt();
         int selStart = data.inputValue(iaStart).asInt();
         int selEnd = data.inputValue(iaEnd).asInt();
+        
+        int mode = data.inputValue(iaMode).asInt();
+        if (mode == 0) {
+            Log::error("Mode is set to zero, use mode=1 optimal and mode=2 for greedy");
+            return MS::kFailure;
+        } else if (mode == 1 || mode == 2) {
+            Log::print("USING MODE 1 or 2");
+        } else {
+            Log::error("Mode was not set, use mode=1 optimal and mode=2 for greedy");
+            return MS::kFailure;
+        }
         
         int animStart = selStart - startOffset;
         int animEnd = animStart + nFramesTotal - 1;
@@ -131,31 +156,36 @@ MStatus SelectorNode::compute(const MPlug& plug, MDataBlock& data) {
         }
         
         // Genereate the selections
-        
-        
         AnimationProxy anim = AnimationProxy::justStartAndEnd(animStart, animEnd);
         ErrorTable analysis = ErrorTable::fromData(errorData, nFramesTotal, anim.start, anim.end);
-        Selector selector = Selector::fromAnal(anim, analysis, selStart, selEnd);
-        SelectionProxy selectionProxy = selector.execute();
+        SelectionProxy * selectionProxy;
+        if (mode == 1) {
+            selectionProxy = getSelectionUsingSelector<SalientPosesSelector>(anim, analysis, selStart, selEnd);
+        } else {
+            selectionProxy = getSelectionUsingSelector<LimThalmannSelector>(anim, analysis, selStart, selEnd);
+        }
         
         // Build a cache of errors
         std::vector<int> selection(nFramesPlus1Sq, -1);
         std::vector<float> errors(nFrames + 1, -1.0f);
         errors[2] = analysis.get_error_by_frame(selStart, selEnd);
         for (int i = 3; i < nFrames + 1; i++) {
-            errors[i] = analysis.get_error_for_frames(selectionProxy.getSelection(i));
+            errors[i] = analysis.get_error_for_frames(selectionProxy->getSelection(i));
         }
-
-        // Write to handles
+        
+        // Write selection cache and set attribute clean
         MDataHandle mSelectionHandle = data.outputValue(oaSelection);
         MFnIntArrayData intArrayData;
-        mSelectionHandle.set(intArrayData.create(MIntArray(selectionProxy.getSelectionCache().data(), nFramesPlus1Sq)));
+        mSelectionHandle.set(intArrayData.create(MIntArray(selectionProxy->getSelectionCache().data(), nFramesPlus1Sq)));
         mSelectionHandle.setClean();
-
+        
+        // Write errors and set errors attribute clean
         MDataHandle mSelectionErrorsHandle = data.outputValue(oaSelectionErrors);
         MFnFloatArrayData floatArrayData;
         mSelectionErrorsHandle.set(floatArrayData.create(MFloatArray(errors.data(), nFrames + 1)));
         mSelectionErrorsHandle.setClean();
+        
+        delete selectionProxy;
         return MS::kSuccess;
         
     } else {
