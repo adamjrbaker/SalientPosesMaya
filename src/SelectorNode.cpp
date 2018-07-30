@@ -31,6 +31,7 @@ MObject SelectorNode::iaStart;
 MObject SelectorNode::iaEnd;
 MObject SelectorNode::iaStartOffset;
 MObject SelectorNode::iaNFramesTotal;
+MObject SelectorNode::iaIndexTable;
 MObject SelectorNode::iaErrorTable;
 MObject SelectorNode::iaNKeyframes;
 MObject SelectorNode::iaMode;
@@ -87,6 +88,13 @@ MStatus SelectorNode::initialize() {
     nAttr.setStorable(true);
     addAttribute(iaErrorTable);
     attributeAffects(iaErrorTable, oaSelection);
+    
+    iaIndexTable = tAttr.create("indexTable", "it", MFnData::kIntArray);
+    nAttr.setReadable(true);
+    nAttr.setWritable(true);
+    nAttr.setStorable(true);
+    addAttribute(iaIndexTable);
+    attributeAffects(iaIndexTable, oaSelection);
     
     iaNKeyframes = nAttr.create("nKeyframes", "n", MFnNumericData::kInt);
     nAttr.setReadable(true);
@@ -155,9 +163,25 @@ MStatus SelectorNode::compute(const MPlug& plug, MDataBlock& data) {
             errorData[i] = errorTableArray[i];
         }
         
+        // Extract previously computed index data from handles
+        MDataHandle indexTableHandle = data.inputValue(iaIndexTable);
+        MObject indexTableObject = indexTableHandle.data();
+        // TODO: add the check: MayaCheck::objectIsIntArray(indexTableObject);
+        MFnIntArrayData indexTableData(indexTableObject, &status);
+        if (status != MS::kSuccess) {
+            Log::showStatusWhenError(status, "Failed to error table");
+            return MS::kFailure;
+        }
+        MIntArray indexTableArray = indexTableData.array();
+        std::vector<int> indexData(indexTableArray.length(), -1);
+        for (int i = 0; i < indexTableArray.length(); i++) {
+            indexData[i] = indexTableArray[i];
+        }
+        
+        
         // Genereate the selections
         AnimationProxy anim = AnimationProxy::justStartAndEnd(animStart, animEnd);
-        ErrorTable analysis = ErrorTable::fromData(errorData, nFramesTotal, anim.start, anim.end);
+        ErrorTable analysis = ErrorTable::fromData(errorData, indexData, nFramesTotal, anim.start, anim.end);
         SelectionProxy * selectionProxy;
         if (mode == 1) {
             selectionProxy = getSelectionUsingSelector<SalientPosesSelector>(anim, analysis, selStart, selEnd);

@@ -36,6 +36,7 @@ public:
     static MObject iaStartOffset;
     static MObject iaNFramesTotal;
     static MObject iaErrorTable;
+    static MObject iaIndexTable;
     static MObject iaMode;
     static MObject iaNKeyframes;
     static MObject oaSelectionErrors;

@@ -30,6 +30,7 @@ public:
     static MObject iaEnd;
     static MObject iaCurveArray;
     static MObject oaErrorTable;
+    static MObject oaIndexTable;
     static MString openCLDirectory;
     
 };

@@ -18,6 +18,7 @@
 #include <maya/MDataHandle.h>
 #include <maya/MFnPointArrayData.h>
 #include <maya/MPointArray.h>
+#include <maya/MFnIntArrayData.h>
 #include <maya/MFnFloatArrayData.h>
 #include <maya/MFloatArray.h>
 #include <maya/MOpenCLInfo.h>
@@ -41,16 +42,23 @@ MObject AnalysisNode::iaStart;
 MObject AnalysisNode::iaEnd;
 MObject AnalysisNode::iaCurveArray;
 MObject AnalysisNode::oaErrorTable;
+MObject AnalysisNode::oaIndexTable;
 
 MStatus AnalysisNode::initialize() {
     MFnNumericAttribute nAttr;
     MFnTypedAttribute tAttr;
     
-    oaErrorTable = tAttr.create("errorTable", "table", MFnData::kFloatArray);
+    oaErrorTable = tAttr.create("errorTable", "et", MFnData::kFloatArray);
     tAttr.setWritable(false);
     tAttr.setReadable(true);
     tAttr.setStorable(true);
     addAttribute(oaErrorTable);
+    
+    oaIndexTable = tAttr.create("indexTable", "it", MFnData::kIntArray);
+    tAttr.setWritable(false);
+    tAttr.setReadable(true);
+    tAttr.setStorable(true);
+    addAttribute(oaIndexTable);
     
     iaStart = nAttr.create("start", "s", MFnNumericData::kInt);
     nAttr.setReadable(true);
@@ -159,14 +167,19 @@ MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data) {
     std::ostringstream os; os << "Running OpenCL using " << openCLPath << std::endl;
     ErrorTable anal = ErrorTable::fromAnim(anim, openCLPath, "max_distance_to_polyline");
 
-    // Format error table data as MObject
-    MFnFloatArrayData mArrayData;
-    MObject mobj = mArrayData.create(MFloatArray(anal.asData().data(), nFrames * nFrames));
+    // Format error table data as MObject and set to error table output
+    MFnFloatArrayData mFloatArrayData;
+    MObject mErrorObj = mFloatArrayData.create(MFloatArray(anal.errorsAsVector().data(), nFrames * nFrames));
+    MDataHandle errorTableOutHandle = data.outputValue(oaErrorTable);
+    errorTableOutHandle.set(mErrorObj);
+    errorTableOutHandle.setClean();
     
-    // Set output
-    MDataHandle outHandle = data.outputValue(oaErrorTable);
-    outHandle.set(mobj);
-    outHandle.setClean();
+    // Format index table data as MObject and set to error table output
+    MFnIntArrayData mIntArrayData;
+    MObject mIndexObj = mIntArrayData.create(MIntArray(anal.indicesAsVector().data(), nFrames * nFrames));
+    MDataHandle indexTableOutHandle = data.outputValue(oaIndexTable);
+    indexTableOutHandle.set(mIndexObj);
+    indexTableOutHandle.setClean();
     
     return MS::kSuccess;
 }
