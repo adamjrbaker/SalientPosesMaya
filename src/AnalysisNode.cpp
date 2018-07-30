@@ -38,6 +38,7 @@
 MString AnalysisNode::openCLDirectory;
 
 MTypeId AnalysisNode::id( 0x0012c2c0 );
+MObject AnalysisNode::iaMode;
 MObject AnalysisNode::iaStart;
 MObject AnalysisNode::iaEnd;
 MObject AnalysisNode::iaCurveArray;
@@ -59,6 +60,13 @@ MStatus AnalysisNode::initialize() {
     tAttr.setReadable(true);
     tAttr.setStorable(true);
     addAttribute(oaIndexTable);
+    
+    iaMode = nAttr.create("mode", "m", MFnNumericData::kInt);
+    nAttr.setReadable(true);
+    nAttr.setWritable(true);
+    nAttr.setStorable(true);
+    addAttribute(iaMode);
+    attributeAffects(iaMode, oaErrorTable);
     
     iaStart = nAttr.create("start", "s", MFnNumericData::kInt);
     nAttr.setReadable(true);
@@ -145,7 +153,7 @@ AnimationProxy AnalysisNode::getAnim(MDataBlock& data, MArrayDataHandle curvesHa
     return AnimationProxy::fromData(anim, dimensions, start, end);
 }
 
-MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data) {
+MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data, int mode) {
     MStatus status;
     
     // Get array handle for "input" attribute.
@@ -163,7 +171,12 @@ MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data) {
     
     // Compute the error table
     std::string openCLPath = openCLDirectory.asChar();
-    openCLPath += "/kernel.cl";
+    if (mode == 1) {
+        openCLPath += "/euclideanBoundedPointToLineDistance.cl";
+    } else if (mode == 2) {
+        openCLPath += "/extremeBoundedPointToLineDistance.cl";
+    }
+    
     std::ostringstream os; os << "Running OpenCL using " << openCLPath << std::endl;
     ErrorTable anal = ErrorTable::fromAnim(anim, openCLPath, "max_distance_to_polyline");
 
@@ -187,7 +200,18 @@ MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data) {
 MStatus AnalysisNode::compute(const MPlug& plug, MDataBlock& data) {
     if (plug == oaErrorTable) {
         Log::print("COMPUTING ANALYSIS");
-        return computeAnalysis(plug, data);
+        
+        int mode = data.inputValue(iaMode).asInt();
+        if (mode == 0) {
+            Log::error("Mode is set to zero, use mode=1 Euclidean-bounding and mode=2 for forced-bounding");
+            return MS::kFailure;
+        } else if (mode == 1 || mode == 2) {
+            Log::print("USING MODE 1 or 2");
+        } else {
+            Log::error("Mode was not set, use mode=1 Euclidean-bounding and mode=2 for forced-bounding");
+            return MS::kFailure;
+        }
+        return computeAnalysis(plug, data, mode);
     } else {
         return MS::kUnknownParameter;
     }
