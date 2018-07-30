@@ -191,10 +191,10 @@ MStatus SelectorNode::compute(const MPlug& plug, MDataBlock& data) {
         
         // Build a cache of errors
         std::vector<int> selection(nFramesPlus1Sq, -1);
-        std::vector<float> errors(nFrames + 1, -1.0f);
+        std::vector<float> errors(selectionProxy->numberOfSelections() + 3, -1.0f);
         errors[2] = analysis.get_error_by_frame(selStart, selEnd);
-        for (int i = 3; i < nFrames + 1; i++) {
-            errors[i] = analysis.get_error_for_frames(selectionProxy->getSelection(i));
+        for (int i = 0; i < selectionProxy->numberOfSelections(); i++) {
+            errors[i+3] = analysis.get_error_for_frames(selectionProxy->getSelectionByIndex(i));
         }
         
         // Write selection cache and set attribute clean
@@ -206,7 +206,7 @@ MStatus SelectorNode::compute(const MPlug& plug, MDataBlock& data) {
         // Write errors and set errors attribute clean
         MDataHandle mSelectionErrorsHandle = data.outputValue(oaSelectionErrors);
         MFnFloatArrayData floatArrayData;
-        mSelectionErrorsHandle.set(floatArrayData.create(MFloatArray(errors.data(), nFrames + 1)));
+        mSelectionErrorsHandle.set(floatArrayData.create(MFloatArray(errors.data(), selectionProxy->numberOfSelections() + 3)));
         mSelectionErrorsHandle.setClean();
         
         delete selectionProxy;
