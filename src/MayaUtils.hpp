@@ -11,6 +11,7 @@
 #include <maya/MString.h>
 #include <maya/MObject.h>
 #include <maya/MStatus.h>
+#include <maya/MTime.h>
 
 class Log {
 public:
@@ -50,6 +51,11 @@ class MayaCheck {
 public:
     static void objectIsPointArray(MObject obj);
     static void objectIsFloatArray(MObject obj);
+};
+
+class MayaConfig {
+public:
+    static MTime::Unit getCurrentFPS();
 };
 
 

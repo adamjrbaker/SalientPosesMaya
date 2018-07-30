@@ -84,6 +84,8 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
     
     int nFrames = _finish - _start + 1;
     
+    MTime::Unit timeUnit = MayaConfig::getCurrentFPS();
+    
     while (!iter.isDone()) {
         MObject mobj;
         iter.getDependNode(mobj);
@@ -101,7 +103,7 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
             // Cache the curve data
             std::vector<float> data;
             for (int i = _start; i < _finish + 1; i++) {
-                MTime time((double) (i));
+                MTime time((double) (i), timeUnit);
                 float v = curve.evaluate(time);
                 data.push_back(v);
             }
@@ -113,7 +115,7 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
             for (int j = _start; j < _finish + 1; j++) {
                 bool j_in_sel = std::find(_selection.begin(), _selection.end(), j) != _selection.end();
                 if (!j_in_sel) {
-                    MTime t((double) j);
+                    MTime t((double) j, timeUnit);
                     unsigned int ix = curve.findClosest(t);
                     curve.remove(ix);
                 }
@@ -127,7 +129,7 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
                 
                 // Set outgoing for left keyframe
                 uint ixLeft;
-                MTime timeLeft((double) s);
+                MTime timeLeft((double) s, timeUnit);
                 curve.find(timeLeft, ixLeft);
                 curve.setWeightsLocked(ixLeft, false);
                 curve.setTangentsLocked(ixLeft, false);
@@ -136,7 +138,7 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
                 
                 // Set incoming for right keyframe
                 uint ixRight;
-                MTime timeRight((double) e);
+                MTime timeRight((double) e, timeUnit);
                 curve.find(timeRight, ixRight);
                 curve.setWeightsLocked(ixRight, false);
                 curve.setTangentsLocked(ixRight, false);

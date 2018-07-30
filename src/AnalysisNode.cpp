@@ -18,6 +18,7 @@
 #include <maya/MDataHandle.h>
 #include <maya/MFnPointArrayData.h>
 #include <maya/MPointArray.h>
+#include <maya/MFnIntArrayData.h>
 #include <maya/MFnFloatArrayData.h>
 #include <maya/MFloatArray.h>
 #include <maya/MOpenCLInfo.h>
@@ -37,20 +38,35 @@
 MString AnalysisNode::openCLDirectory;
 
 MTypeId AnalysisNode::id( 0x0012c2c0 );
+MObject AnalysisNode::iaMode;
 MObject AnalysisNode::iaStart;
 MObject AnalysisNode::iaEnd;
 MObject AnalysisNode::iaCurveArray;
 MObject AnalysisNode::oaErrorTable;
+MObject AnalysisNode::oaIndexTable;
 
 MStatus AnalysisNode::initialize() {
     MFnNumericAttribute nAttr;
     MFnTypedAttribute tAttr;
     
-    oaErrorTable = tAttr.create("errorTable", "table", MFnData::kFloatArray);
+    oaErrorTable = tAttr.create("errorTable", "et", MFnData::kFloatArray);
     tAttr.setWritable(false);
     tAttr.setReadable(true);
     tAttr.setStorable(true);
     addAttribute(oaErrorTable);
+    
+    oaIndexTable = tAttr.create("indexTable", "it", MFnData::kIntArray);
+    tAttr.setWritable(false);
+    tAttr.setReadable(true);
+    tAttr.setStorable(true);
+    addAttribute(oaIndexTable);
+    
+    iaMode = nAttr.create("mode", "m", MFnNumericData::kInt);
+    nAttr.setReadable(true);
+    nAttr.setWritable(true);
+    nAttr.setStorable(true);
+    addAttribute(iaMode);
+    attributeAffects(iaMode, oaErrorTable);
     
     iaStart = nAttr.create("start", "s", MFnNumericData::kInt);
     nAttr.setReadable(true);
@@ -137,7 +153,7 @@ AnimationProxy AnalysisNode::getAnim(MDataBlock& data, MArrayDataHandle curvesHa
     return AnimationProxy::fromData(anim, dimensions, start, end);
 }
 
-MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data) {
+MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data, int mode) {
     MStatus status;
     
     // Get array handle for "input" attribute.
@@ -155,18 +171,28 @@ MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data) {
     
     // Compute the error table
     std::string openCLPath = openCLDirectory.asChar();
-    openCLPath += "/kernel.cl";
+    if (mode == 1) {
+        openCLPath += "/euclideanBoundedPointToLineDistance.cl";
+    } else if (mode == 2) {
+        openCLPath += "/extremeBoundedPointToLineDistance.cl";
+    }
+    
     std::ostringstream os; os << "Running OpenCL using " << openCLPath << std::endl;
     ErrorTable anal = ErrorTable::fromAnim(anim, openCLPath, "max_distance_to_polyline");
 
-    // Format error table data as MObject
-    MFnFloatArrayData mArrayData;
-    MObject mobj = mArrayData.create(MFloatArray(anal.asData().data(), nFrames * nFrames));
+    // Format error table data as MObject and set to error table output
+    MFnFloatArrayData mFloatArrayData;
+    MObject mErrorObj = mFloatArrayData.create(MFloatArray(anal.errorsAsVector().data(), nFrames * nFrames));
+    MDataHandle errorTableOutHandle = data.outputValue(oaErrorTable);
+    errorTableOutHandle.set(mErrorObj);
+    errorTableOutHandle.setClean();
     
-    // Set output
-    MDataHandle outHandle = data.outputValue(oaErrorTable);
-    outHandle.set(mobj);
-    outHandle.setClean();
+    // Format index table data as MObject and set to error table output
+    MFnIntArrayData mIntArrayData;
+    MObject mIndexObj = mIntArrayData.create(MIntArray(anal.indicesAsVector().data(), nFrames * nFrames));
+    MDataHandle indexTableOutHandle = data.outputValue(oaIndexTable);
+    indexTableOutHandle.set(mIndexObj);
+    indexTableOutHandle.setClean();
     
     return MS::kSuccess;
 }
@@ -174,7 +200,18 @@ MStatus AnalysisNode::computeAnalysis(const MPlug& plug, MDataBlock& data) {
 MStatus AnalysisNode::compute(const MPlug& plug, MDataBlock& data) {
     if (plug == oaErrorTable) {
         Log::print("COMPUTING ANALYSIS");
-        return computeAnalysis(plug, data);
+        
+        int mode = data.inputValue(iaMode).asInt();
+        if (mode == 0) {
+            Log::error("Mode is set to zero, use mode=1 Euclidean-bounding and mode=2 for forced-bounding");
+            return MS::kFailure;
+        } else if (mode == 1 || mode == 2) {
+            Log::print("USING MODE 1 or 2");
+        } else {
+            Log::error("Mode was not set, use mode=1 Euclidean-bounding and mode=2 for forced-bounding");
+            return MS::kFailure;
+        }
+        return computeAnalysis(plug, data, mode);
     } else {
         return MS::kUnknownParameter;
     }

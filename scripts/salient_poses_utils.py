@@ -62,7 +62,7 @@ class UIBuilder:
         UIBuilder.make_spacer(add_to, (WINDOW_QUARTER * 1, 10))
 
     @staticmethod
-    def make_spacer_2(add_to,):
+    def make_spacer_2(add_to):
         UIBuilder.make_spacer(add_to, (WINDOW_QUARTER * 2, 10))
 
     @staticmethod
@@ -418,17 +418,23 @@ class MayaScene:
         t = cmds.objectType(obj)
         if t == 'transform':
             obj_for_ghosting = cmds.listRelatives(obj, shapes=True)[0]
-        print(obj_for_ghosting, frames)
         cmds.setAttr("%s.ghosting" % obj_for_ghosting, 1)
         cmds.setAttr("%s.ghostingControl" % obj_for_ghosting, 1)
         cmds.setAttr("%s.ghostFrames" % obj_for_ghosting, frames, type="Int32Array")
 
+    @staticmethod
+    def set_ghosting_for_objects(objects, frames):
+        for obj in objects: MayaScene.set_ghosting(obj, frames)
 
     @staticmethod
     def remove_ghosting(obj_for_ghosting):
         cmds.setAttr("%s.ghosting" % obj_for_ghosting, False)
         cmds.setAttr("%s.ghostingControl" % obj_for_ghosting, False)
         cmds.setAttr("%s.ghostFrames" % obj_for_ghosting, [], type="Int32Array")
+
+    @staticmethod
+    def remove_ghosting_for_objects(objects):
+        for obj in objects: MayaScene.remove_ghosting(obj)
 
     @staticmethod
     def provoke_attribute(object_name, attribute_name):
@@ -502,6 +508,42 @@ class MayaScene:
     @staticmethod
     def bake_translation(obj, start, end):
         MayaScene.bake(obj, "translate", start, end)
+
+    @staticmethod
+    def set_key(object):
+        cmds.setKeyframe("%s.translate" % object)
+        cmds.setKeyframe("%s.rotate" % object)
+    
+    @staticmethod
+    def get_translation(object):
+        x, y, z = cmds.xform(object, q=True, worldSpace=True,  translation=True)
+        return x, y, z
+
+    @staticmethod
+    def set_translation(object, x, y, z):
+        cmds.xform(object, worldSpace=True,  translation=[x, y, z])
+        
+    @staticmethod
+    def get_rotation(object):
+        x, y, z = cmds.xform(object, q=True, worldSpace=True,  rotation=True)
+        return x, y, z
+
+    @staticmethod
+    def set_rotation(object, x, y, z):
+        cmds.xform(object, worldSpace=True,  rotation=[x, y, z])
+
+    @staticmethod
+    def cache_animation_for_object(obj, start_frame, end_frame, attributes):
+        animation = {}
+        for attr in attributes:
+            animation[attr] = [cmds.getAttr("%s.%s" % (obj, attr), time=i) for i in range(start_frame, end_frame)]
+        return animation
+
+    @staticmethod
+    def restore_animation_for_object(obj, animation, start_frame):
+        for attr in animation.keys():
+            for i, value in enumerate(animation[attr]):
+                cmds.setKeyframe(obj, value=value, attribute=attr, time=i+start_frame)
 
 # 
 # --------------------------------------------------------------------------------------------------------------------#

@@ -51,4 +51,5 @@ MAYA_PLUGIN(${PROJECT_NAME})
 install(TARGETS ${PROJECT_NAME} ${MAYA_TARGET_TYPE} DESTINATION ./plug-ins/SalientPoses)
 
 # Finally, copy OpenCL programs into the build's directory.
-install(FILES "../SalientPosesPerformance/src/kernel.cl" DESTINATION ./plug-ins/SalientPoses)
+install(FILES "../SalientPosesPerformance/src/euclideanBoundedPointToLineDistance.cl" DESTINATION ./plug-ins/SalientPoses)
+install(FILES "../SalientPosesPerformance/src/extremeBoundedPointToLineDistance.cl" DESTINATION ./plug-ins/SalientPoses)
