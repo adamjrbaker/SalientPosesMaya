@@ -536,7 +536,7 @@ class MayaScene:
     def cache_animation_for_object(obj, start_frame, end_frame, attributes):
         animation = {}
         for attr in attributes:
-            animation[attr] = [cmds.getAttr("%s.%s" % (obj, attr), time=i) for i in range(start_frame, end_frame)]
+            animation[attr] = [cmds.getAttr("%s.%s" % (obj, attr), time=i) for i in range(start_frame, end_frame + 1)]
         return animation
 
     @staticmethod
