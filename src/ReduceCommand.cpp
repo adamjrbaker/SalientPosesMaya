@@ -112,10 +112,10 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
             std::vector<Cubic> cubics = interpolator.getCubics();
             
             // Remove non-keyframes
-            for (int j = _start; j < _finish + 1; j++) {
+            for (int j = _start; j < _finish; j++) {
                 bool j_in_sel = std::find(_selection.begin(), _selection.end(), j) != _selection.end();
                 if (!j_in_sel) {
-                    MTime t((double) j, timeUnit);
+                    MTime t((double) j,timeUnit);
                     unsigned int ix = curve.findClosest(t);
                     curve.remove(ix);
                 }
