@@ -5,6 +5,8 @@ from shiboken2 import wrapInstance
 from maya.app.general.mayaMixin import MayaQWidgetBaseMixin, MayaQWidgetDockableMixin
 from maya import OpenMayaUI as omui 
 import maya.cmds as cmds
+import maya.mel as mel
+from shiboken2 import wrapInstance
 
 import salient_poses_utils as utils
 
@@ -18,13 +20,16 @@ DrawingBuilder = utils.DrawingBuilder
 MayaScene = utils.MayaScene
 
 
+def getMayaMainWindow():
+    mayaPtr = omui.MQtUtil.mainWindow()
+    return wrapInstance(long(mayaPtr), QtWidgets.QWidget)
+    
 _win = None
 def show():
     global _win
     if _win == None:
-        _win = SalientPosesDialog()
-    _win.show(dockable=False, floating=True)
-    # _win.show(dockable=True, area='right', floating=False)
+        _win = SalientPosesDialog(parent=getMayaMainWindow())
+    _win.show(dockable=True)
 
 class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
