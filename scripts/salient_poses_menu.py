@@ -143,6 +143,8 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             self.animation_before_reduction[obj] = MayaScene.cache_animation_for_object(obj, int(self.start_edit.text()), int(self.end_edit.text()), ["tx", "ty", "tz", "rx", "ry", "rz"])
 
         selection = self.get_selection_of_n_keyframes(self.n_keyframes_slider.value())
+        # Turn off ghosting first!
+        mel.eval("unGhostAll")
         cmds.vuwReduceCommand(start=selection[0], finish=selection[-1], selection=selection)
 
     def undo_reduction(self):
