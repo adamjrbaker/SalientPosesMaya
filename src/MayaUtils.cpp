@@ -168,3 +168,14 @@ MTime::Unit MayaConfig::getCurrentFPS() {
         return MTime::kFilm;
     }
 }
+
+
+MAngle::Unit MayaConfig::getCurrentAngleUnit() {
+    MString angularUnit = MGlobal::optionVarStringValue(MString("workingUnitAngular"));
+    if (angularUnit == MString("deg")) {
+        return MAngle::kDegrees;
+    } else {
+        return MAngle::kRadians;
+    }
+}
+
