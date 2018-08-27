@@ -137,16 +137,23 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.update_visualization()
 
     def apply_reduction_and_fitting(self):
+        selection = self.get_selection_of_n_keyframes(self.n_keyframes_slider.value())
+
+        # Turn off ghosting first!
+        mel.eval("unGhostAll")
+
+        # Apply bake for current selection range
+        MayaScene.set_all_keys_on_objs_between(MayaScene.get_selected(), selection[0], selection[-1])
+        
+        # Cache anim data
         self.animation_before_reduction = {}
         self.start_frame_before_reduction_frame_before_reduction = int(self.start_edit.text())
         for obj in MayaScene.get_selected():
-            self.animation_before_reduction[obj] = MayaScene.cache_animation_for_object(obj, int(self.start_edit.text()), int(self.end_edit.text()), ["tx", "ty", "tz", "rx", "ry", "rz"])
+            self.animation_before_reduction[obj] = MayaScene.cache_animation_for_object(obj, int(self.start_edit.text()), int(self.end_edit.text()))
 
-        selection = self.get_selection_of_n_keyframes(self.n_keyframes_slider.value())
-        # Turn off ghosting first!
-        mel.eval("unGhostAll")
+        # Apply reduction
         cmds.vuwReduceCommand(start=selection[0], finish=selection[-1], selection=selection)
-
+        
     def undo_reduction(self):
         for obj in self.animation_before_reduction.keys():
             MayaScene.restore_animation_for_object(obj, self.animation_before_reduction[obj], self.start_frame_before_reduction_frame_before_reduction)
