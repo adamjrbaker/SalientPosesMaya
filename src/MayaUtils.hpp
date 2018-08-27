@@ -12,6 +12,7 @@
 #include <maya/MObject.h>
 #include <maya/MStatus.h>
 #include <maya/MTime.h>
+#include <maya/MAngle.h>
 
 class Log {
 public:
@@ -56,6 +57,7 @@ public:
 class MayaConfig {
 public:
     static MTime::Unit getCurrentFPS();
+    static MAngle::Unit getCurrentAngleUnit();
 };
 
 

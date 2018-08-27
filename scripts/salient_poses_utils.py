@@ -533,17 +533,30 @@ class MayaScene:
         cmds.xform(object, worldSpace=True,  rotation=[x, y, z])
 
     @staticmethod
-    def cache_animation_for_object(obj, start_frame, end_frame, attributes):
+    def cache_animation_for_object(obj, start_frame, end_frame):
         animation = {}
-        for attr in attributes:
-            animation[attr] = [cmds.getAttr("%s.%s" % (obj, attr), time=i) for i in range(start_frame, end_frame)]
+        curves = [x for x in cmds.listConnections(obj) if "animCurve" in cmds.nodeType(x)]
+        for curve in curves:
+            animation[curve] = [cmds.keyframe(curve, query=True, time=(i, i), eval=True)[0] for i in range(start_frame, end_frame + 1)]
         return animation
 
     @staticmethod
     def restore_animation_for_object(obj, animation, start_frame):
-        for attr in animation.keys():
-            for i, value in enumerate(animation[attr]):
-                cmds.setKeyframe(obj, value=value, attribute=attr, time=i+start_frame)
+        for curve in animation.keys():
+            for i, value in enumerate(animation[curve]):
+                cmds.setKeyframe(curve, value=value, time=i+start_frame)
+
+    @staticmethod
+    def set_all_keys_on_obj_between(obj, s, e):
+        for i in range(s, e + 1):
+            anim_curves = [x for x in cmds.listConnections(obj) if "animCurve" in cmds.nodeType(x)]
+            for anim_curve in anim_curves:
+                cmds.setKeyframe(anim_curve, t=(i,i))
+
+    @staticmethod
+    def set_all_keys_on_objs_between(objs, s, e):
+        for obj in objs:
+            MayaScene.set_all_keys_on_obj_between(obj, s, e)
 
 # 
 # --------------------------------------------------------------------------------------------------------------------#

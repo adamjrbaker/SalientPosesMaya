@@ -110,19 +110,19 @@ void MayaCheck::objectIsFloatArray(MObject obj) {
 
 MTime::Unit MayaConfig::getCurrentFPS() {
     MString ret = MGlobal::optionVarStringValue(MString("workingUnitTime"));
-         if (ret == MString("games"))     { return MTime::k15FPS; }
+         if (ret == MString("games"))     { return MTime::kGames; }
     else if (ret == MString("15fps"))     { return MTime::k15FPS; }
-    else if (ret == MString("film"))      { return MTime::k24FPS; }
+    else if (ret == MString("film"))      { return MTime::kFilm; }
     else if (ret == MString("24fps"))     { return MTime::k24FPS; }
-    else if (ret == MString("pal"))       { return MTime::k25FPS; }
+    else if (ret == MString("pal"))       { return MTime::kPALFrame; }
     else if (ret == MString("25fps"))     { return MTime::k25FPS; }
-    else if (ret == MString("ntsc"))      { return MTime::k30FPS; }
+    else if (ret == MString("ntsc"))      { return MTime::kNTSCFrame; }
     else if (ret == MString("30fps"))     { return MTime::k30FPS; }
-    // else if (ret == MString("ShowScan"))  { return MTime::k48FPS; }
+    else if (ret == MString("ShowScan"))  { return MTime::k48FPS; }
     else if (ret == MString("48fps"))     { return MTime::k48FPS; }
-    else if (ret == MString("palf"))      {  return MTime::k50FPS; }
+    else if (ret == MString("palf"))      {  return MTime::kPALField; }
     else if (ret == MString("50fps"))     { return MTime::k50FPS; }
-    else if (ret == MString("ntscf"))     { return MTime::k60FPS; }
+    else if (ret == MString("ntscf"))     { return MTime::kNTSCField; }
     else if (ret == MString("60fps"))     { return MTime::k60FPS; }
     else if (ret == MString("2fps")) { return MTime::k2FPS; }
     else if (ret == MString("3fps")) { return MTime::k3FPS; }
@@ -168,3 +168,14 @@ MTime::Unit MayaConfig::getCurrentFPS() {
         return MTime::kFilm;
     }
 }
+
+
+MAngle::Unit MayaConfig::getCurrentAngleUnit() {
+    MString angularUnit = MGlobal::optionVarStringValue(MString("workingUnitAngular"));
+    if (angularUnit == MString("deg")) {
+        return MAngle::kDegrees;
+    } else {
+        return MAngle::kRadians;
+    }
+}
+

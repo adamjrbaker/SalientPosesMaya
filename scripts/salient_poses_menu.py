@@ -5,6 +5,8 @@ from shiboken2 import wrapInstance
 from maya.app.general.mayaMixin import MayaQWidgetBaseMixin, MayaQWidgetDockableMixin
 from maya import OpenMayaUI as omui 
 import maya.cmds as cmds
+import maya.mel as mel
+from shiboken2 import wrapInstance
 
 import salient_poses_utils as utils
 
@@ -18,13 +20,16 @@ DrawingBuilder = utils.DrawingBuilder
 MayaScene = utils.MayaScene
 
 
+def getMayaMainWindow():
+    mayaPtr = omui.MQtUtil.mainWindow()
+    return wrapInstance(long(mayaPtr), QtWidgets.QWidget)
+    
 _win = None
 def show():
     global _win
     if _win == None:
-        _win = SalientPosesDialog()
-    _win.show(dockable=False, floating=True)
-    # _win.show(dockable=True, area='right', floating=False)
+        _win = SalientPosesDialog(parent=getMayaMainWindow())
+    _win.show(dockable=True)
 
 class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
@@ -34,6 +39,9 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.algorithm = 1
         self.selection_cache = []
         self.selection_errors = []
+
+        self.animation_original = {}
+        self.start_from_original = -1
 
         self.animation_before_reduction = {}
         self.start_frame_before_reduction = -1
@@ -81,13 +89,34 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             # Buttons
             hbox = UIBuilder.horizontal_box(add_to=vbox)
             UIBuilder.label(hbox, "Actions")
-            UIBuilder.button(hbox, "Compute", fn=self.compute_selections_and_errors)
-            UIBuilder.button(hbox, "Apply", fn=self.apply_reduction_and_fitting)
-            UIBuilder.button(hbox, "Undo", fn=self.undo_reduction)
+            UIBuilder.button(hbox, "Set Origin", fn=self.set_original)
+            UIBuilder.button(hbox, "Select", fn=self.compute_selections_and_errors)
+            UIBuilder.button(hbox, "Reduce", fn=self.apply_reduction_and_fitting)
+            hbox = UIBuilder.horizontal_box(add_to=vbox)
+            UIBuilder.make_spacer_1(hbox)
+            UIBuilder.button(hbox, "Reset", fn=self.reset_to_original)
+            UIBuilder.button(hbox, "Undo", fn=self.undo_last_reduction)
+            
+            
 
         init_ui()
         self.setWindowTitle('Salient Poses')
         self.resize(utils.WINDOW_WIDTH, utils.WINDOW_WIDTH)
+
+    def set_original(self):
+        # Apply bake for current selection range
+        s, e = int(self.start_edit.text()), int(self.end_edit.text())
+        MayaScene.set_all_keys_on_objs_between(MayaScene.get_selected(), s, e)
+        
+        # Cache anim data
+        self.animation_original = {}
+        self.start_from_original = int(self.start_edit.text())
+        for obj in MayaScene.get_selected():
+            self.animation_original[obj] = MayaScene.cache_animation_for_object(obj, s, e)
+
+    def reset_to_original(self):
+        for obj in self.animation_original.keys():
+            MayaScene.restore_animation_for_object(obj, self.animation_original[obj], self.start_from_original)
 
     def compute_selections_and_errors(self):
 
@@ -132,17 +161,28 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.update_visualization()
 
     def apply_reduction_and_fitting(self):
-        self.animation_before_reduction = {}
-        self.start_frame_before_reduction_frame_before_reduction = int(self.start_edit.text())
-        for obj in MayaScene.get_selected():
-            self.animation_before_reduction[obj] = MayaScene.cache_animation_for_object(obj, int(self.start_edit.text()), int(self.end_edit.text()), ["tx", "ty", "tz", "rx", "ry", "rz"])
-
         selection = self.get_selection_of_n_keyframes(self.n_keyframes_slider.value())
-        cmds.vuwReduceCommand(start=selection[0], finish=selection[-1], selection=selection)
+        s = selection[0]
+        e = selection[-1]
 
-    def undo_reduction(self):
+        # Apply bake for current selection range
+        MayaScene.set_all_keys_on_objs_between(MayaScene.get_selected(), s, e)
+
+        # Turn off ghosting first!
+        mel.eval("unGhostAll")
+
+        # Cache the latest
+        self.animation_before_reduction = {}
+        self.start_frame_before_reduction = int(self.start_edit.text())
+        for obj in MayaScene.get_selected():
+            self.animation_before_reduction[obj] = MayaScene.cache_animation_for_object(obj, s, e)
+
+        # Apply reduction
+        cmds.vuwReduceCommand(start=s, finish=e, selection=selection)
+
+    def undo_last_reduction(self):
         for obj in self.animation_before_reduction.keys():
-            MayaScene.restore_animation_for_object(obj, self.animation_before_reduction[obj], self.start_frame_before_reduction_frame_before_reduction)
+            MayaScene.restore_animation_for_object(obj, self.animation_before_reduction[obj], self.start_frame_before_reduction)
 
     def get_selection_of_n_keyframes(self, n_keyframes):
         if self.selection_cache == []:
@@ -210,24 +250,18 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
  
     def set_start_frame_via_text(self):
         value = (self.start_edit.text())
-        self.start_slider.setValue(value)
-        MayaScene.set_animation_section(value, self.end_slider.value())
         self.n_keyframes_slider.setRange(*self.get_keyframe_range())
 
     def set_start_via_slider(self, value):
         self.start_edit.setText(str(value))
-        MayaScene.set_animation_section(value, self.end_slider.value())
         self.n_keyframes_slider.setRange(*self.get_keyframe_range())
 
     def set_end_frame_via_text(self):
         value = int(self.end_edit.text())
-        self.end_slider.setValue(value)
-        MayaScene.set_animation_section(self.start_slider.value(), value)
         self.n_keyframes_slider.setRange(*self.get_keyframe_range())
 
     def set_end_via_slider(self, value):
         self.end_edit.setText(str(value))
-        MayaScene.set_animation_section(self.start_slider.value(), value)
         self.n_keyframes_slider.setRange(*self.get_keyframe_range())
         
     def set_n_keyframes_via_text(self):

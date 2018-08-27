@@ -29,6 +29,8 @@
 #include "MayaUtils.hpp"
 #include "ReduceCommand.hpp"
 
+#define RAD_TO_DEG 57.2958279088
+
 
 // Set name and flags
 const char* ReduceCommand::kName = "vuwReduceCommand";
@@ -85,6 +87,8 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
     int nFrames = _finish - _start + 1;
     
     MTime::Unit timeUnit = MayaConfig::getCurrentFPS();
+    MAngle::Unit angleUnit = MayaConfig::getCurrentAngleUnit();
+    bool usingDegrees = angleUnit == MAngle::kDegrees;
     
     while (!iter.isDone()) {
         MObject mobj;
@@ -100,22 +104,30 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
         for (int k = 0; k < plugs.length(); k++) {
             MFnAnimCurve curve(plugs[k]);
             
+            bool isAngluar = curve.animCurveType() == MFnAnimCurve::kAnimCurveTA;
+            
             // Cache the curve data
             std::vector<float> data;
             for (int i = _start; i < _finish + 1; i++) {
                 MTime time((double) (i), timeUnit);
                 float v = curve.evaluate(time);
-                data.push_back(v);
+                
+                if (isAngluar && usingDegrees) {
+                    data.push_back(v * RAD_TO_DEG);
+                } else {
+                    data.push_back(v);
+                }
+                
             }
             
             Interpolator interpolator = Interpolator::fromData(data, _selection, nFrames, _start);
             std::vector<Cubic> cubics = interpolator.getCubics();
             
             // Remove non-keyframes
-            for (int j = _start; j < _finish + 1; j++) {
+            for (int j = _start; j < _finish; j++) {
                 bool j_in_sel = std::find(_selection.begin(), _selection.end(), j) != _selection.end();
                 if (!j_in_sel) {
-                    MTime t((double) j, timeUnit);
+                    MTime t((double) j,timeUnit);
                     unsigned int ix = curve.findClosest(t);
                     curve.remove(ix);
                 }
@@ -133,7 +145,7 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
                 curve.find(timeLeft, ixLeft);
                 curve.setWeightsLocked(ixLeft, false);
                 curve.setTangentsLocked(ixLeft, false);
-                curve.setAngle(ixLeft, MAngle(cubic.angleLeft()), false);
+                curve.setAngle(ixLeft, MAngle(cubic.angleLeft(), MAngle::kRadians), false);
                 curve.setWeight(ixLeft, cubic.weightLeft(), false);
                 
                 // Set incoming for right keyframe
@@ -142,7 +154,8 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
                 curve.find(timeRight, ixRight);
                 curve.setWeightsLocked(ixRight, false);
                 curve.setTangentsLocked(ixRight, false);
-                curve.setAngle(ixRight, MAngle(cubic.angleRight()), true);
+                
+                curve.setAngle(ixRight, MAngle(cubic.angleRight(), MAngle::kRadians), true);
                 curve.setWeight(ixRight, cubic.weightRight(), true);
             }
         }
