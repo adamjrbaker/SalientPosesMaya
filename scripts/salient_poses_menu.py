@@ -40,6 +40,9 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.selection_cache = []
         self.selection_errors = []
 
+        self.animation_original = {}
+        self.start_from_original = -1
+
         self.animation_before_reduction = {}
         self.start_frame_before_reduction = -1
 
@@ -86,13 +89,34 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             # Buttons
             hbox = UIBuilder.horizontal_box(add_to=vbox)
             UIBuilder.label(hbox, "Actions")
-            UIBuilder.button(hbox, "Compute", fn=self.compute_selections_and_errors)
-            UIBuilder.button(hbox, "Apply", fn=self.apply_reduction_and_fitting)
-            UIBuilder.button(hbox, "Undo", fn=self.undo_reduction)
+            UIBuilder.button(hbox, "Set Origin", fn=self.set_original)
+            UIBuilder.button(hbox, "Select", fn=self.compute_selections_and_errors)
+            UIBuilder.button(hbox, "Reduce", fn=self.apply_reduction_and_fitting)
+            hbox = UIBuilder.horizontal_box(add_to=vbox)
+            UIBuilder.make_spacer_1(hbox)
+            UIBuilder.button(hbox, "Reset", fn=self.reset_to_original)
+            UIBuilder.button(hbox, "Undo", fn=self.undo_last_reduction)
+            
+            
 
         init_ui()
         self.setWindowTitle('Salient Poses')
         self.resize(utils.WINDOW_WIDTH, utils.WINDOW_WIDTH)
+
+    def set_original(self):
+        # Apply bake for current selection range
+        s, e = int(self.start_edit.text()), int(self.end_edit.text())
+        MayaScene.set_all_keys_on_objs_between(MayaScene.get_selected(), s, e)
+        
+        # Cache anim data
+        self.animation_original = {}
+        self.start_from_original = int(self.start_edit.text())
+        for obj in MayaScene.get_selected():
+            self.animation_original[obj] = MayaScene.cache_animation_for_object(obj, s, e)
+
+    def reset_to_original(self):
+        for obj in self.animation_original.keys():
+            MayaScene.restore_animation_for_object(obj, self.animation_original[obj], self.start_from_original)
 
     def compute_selections_and_errors(self):
 
@@ -138,25 +162,27 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
     def apply_reduction_and_fitting(self):
         selection = self.get_selection_of_n_keyframes(self.n_keyframes_slider.value())
+        s = selection[0]
+        e = selection[-1]
+
+        # Apply bake for current selection range
+        MayaScene.set_all_keys_on_objs_between(MayaScene.get_selected(), s, e)
 
         # Turn off ghosting first!
         mel.eval("unGhostAll")
 
-        # Apply bake for current selection range
-        MayaScene.set_all_keys_on_objs_between(MayaScene.get_selected(), selection[0], selection[-1])
-        
-        # Cache anim data
+        # Cache the latest
         self.animation_before_reduction = {}
-        self.start_frame_before_reduction_frame_before_reduction = int(self.start_edit.text())
+        self.start_frame_before_reduction = int(self.start_edit.text())
         for obj in MayaScene.get_selected():
-            self.animation_before_reduction[obj] = MayaScene.cache_animation_for_object(obj, int(self.start_edit.text()), int(self.end_edit.text()))
+            self.animation_before_reduction[obj] = MayaScene.cache_animation_for_object(obj, s, e)
 
         # Apply reduction
-        cmds.vuwReduceCommand(start=selection[0], finish=selection[-1], selection=selection)
-        
-    def undo_reduction(self):
+        cmds.vuwReduceCommand(start=s, finish=e, selection=selection)
+
+    def undo_last_reduction(self):
         for obj in self.animation_before_reduction.keys():
-            MayaScene.restore_animation_for_object(obj, self.animation_before_reduction[obj], self.start_frame_before_reduction_frame_before_reduction)
+            MayaScene.restore_animation_for_object(obj, self.animation_before_reduction[obj], self.start_frame_before_reduction)
 
     def get_selection_of_n_keyframes(self, n_keyframes):
         if self.selection_cache == []:
