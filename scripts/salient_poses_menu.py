@@ -217,24 +217,18 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
  
     def set_start_frame_via_text(self):
         value = (self.start_edit.text())
-        self.start_slider.setValue(value)
-        MayaScene.set_animation_section(value, self.end_slider.value())
         self.n_keyframes_slider.setRange(*self.get_keyframe_range())
 
     def set_start_via_slider(self, value):
         self.start_edit.setText(str(value))
-        MayaScene.set_animation_section(value, self.end_slider.value())
         self.n_keyframes_slider.setRange(*self.get_keyframe_range())
 
     def set_end_frame_via_text(self):
         value = int(self.end_edit.text())
-        self.end_slider.setValue(value)
-        MayaScene.set_animation_section(self.start_slider.value(), value)
         self.n_keyframes_slider.setRange(*self.get_keyframe_range())
 
     def set_end_via_slider(self, value):
         self.end_edit.setText(str(value))
-        MayaScene.set_animation_section(self.start_slider.value(), value)
         self.n_keyframes_slider.setRange(*self.get_keyframe_range())
         
     def set_n_keyframes_via_text(self):
