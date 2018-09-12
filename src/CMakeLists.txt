@@ -35,6 +35,8 @@ set(SOURCE_FILES
     "SelectorNode.hpp"
     "ReduceCommand.cpp"
     "ReduceCommand.hpp"
+	"SelectCommand.cpp"
+    "SelectCommand.hpp"
     "pluginMain.cpp"
 )
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
