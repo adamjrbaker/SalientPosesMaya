@@ -27,11 +27,32 @@ public:
     static MSyntax newSyntax();
     
     const static char* kName;
+    const static char* kOpenCLPlatformFlagShort;
+    const static char* kOpenCLPlatformFlagLong;
+    const static char* kOpenCLDeviceFlagShort;
+    const static char* kOpenCLDeviceFlagLong;
     const static char* kHelpFlagShort;
     const static char* kHelpFlagLong;
+    const static char* kStartFlagShort;
+    const static char* kStartFlagLong;
+    const static char* kFinishFlagShort;
+    const static char* kFinishFlagLong;
+	const static char* kAnimFlagShort;
+	const static char* kAnimFlagLong;
+	const static char* kDimensionsFlagShort;
+	const static char* kDimensionsFlagLong;
+
+	static MString openCLDirectory;
     
 private:
     
+    int _start = -1;
+    int _finish = -1;
+	std::vector<float> _animData;
+    std::vector<int> _fixedKeyframes;
+	std::vector<std::string> _dimensions;
+    int openCLPlatformIndex;
+    int openCLDeviceIndex;
     MStatus GatherCommandArguments(const MArgList& args);
 };
 
