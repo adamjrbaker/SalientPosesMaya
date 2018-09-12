@@ -1,3 +1,7 @@
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Set any operating-system dependent flags for the compiler
 if (WIN32)
     set(COMPILE_FLAGS "/arch:AVX")
@@ -11,6 +15,7 @@ set(SOURCE_FILES
     "../SalientPosesPerformance/src/common.hpp"
     "../SalientPosesPerformance/src/AnimationProxy.cpp"
     "../SalientPosesPerformance/src/AnimationProxy.hpp"
+    "../SalientPosesPerformance/src/OpenCLProcess.cpp"
     "../SalientPosesPerformance/src/OpenCLProcess.hpp"
     "../SalientPosesPerformance/src/ErrorTable.cpp"
     "../SalientPosesPerformance/src/ErrorTable.hpp"
@@ -18,6 +23,8 @@ set(SOURCE_FILES
     "../SalientPosesPerformance/src/SelectionProxy.hpp"
     "../SalientPosesPerformance/src/Selector.cpp"
     "../SalientPosesPerformance/src/Selector.hpp"
+    "../SalientPosesPerformance/src/SelectionManager.cpp"
+    "../SalientPosesPerformance/src/SelectionManager.hpp"
     "../SalientPosesPerformance/src/Interpolator.cpp"
     "../SalientPosesPerformance/src/Interpolator.hpp"
     "MayaUtils.cpp"
@@ -51,5 +58,4 @@ MAYA_PLUGIN(${PROJECT_NAME})
 install(TARGETS ${PROJECT_NAME} ${MAYA_TARGET_TYPE} DESTINATION ./plug-ins/SalientPoses)
 
 # Finally, copy OpenCL programs into the build's directory.
-install(FILES "../SalientPosesPerformance/src/euclideanBoundedPointToLineDistance.cl" DESTINATION ./plug-ins/SalientPoses)
-install(FILES "../SalientPosesPerformance/src/extremeBoundedPointToLineDistance.cl" DESTINATION ./plug-ins/SalientPoses)
+install(FILES "../SalientPosesPerformance/src/kernel.cl" DESTINATION ./plug-ins/SalientPoses)

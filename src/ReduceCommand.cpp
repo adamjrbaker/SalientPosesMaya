@@ -120,7 +120,8 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
                 
             }
             
-            Interpolator interpolator = Interpolator::fromData(data, _selection, nFrames, _start);
+            std::string name = curve.name().asChar();
+            Interpolator interpolator = Interpolator::fromData(name, data, _selection, nFrames, _start);
             std::vector<Cubic> cubics = interpolator.getCubics();
             
             // Remove non-keyframes
