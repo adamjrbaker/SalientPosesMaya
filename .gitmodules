@@ -1,3 +1,6 @@
 [submodule "SalientPosesPerformance"]
 	path = SalientPosesPerformance
 	url = git@github.com:richard-roberts/SalientPosesPerformance
+[submodule "cgcmake"]
+	path = cgcmake
+	url = https://github.com/richard-roberts/cgcmake.git

@@ -3,7 +3,7 @@ project(SalientPosesMaya)
 
 # Set up the build environment's variables
 set(PROJECT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT})
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../build/cgcmake/modules)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cgcmake/modules)
 
 # Add the Maya land Eigen (header-only libraries)
 find_package(OpenCL REQUIRED)
