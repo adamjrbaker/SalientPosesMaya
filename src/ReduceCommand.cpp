@@ -33,7 +33,7 @@
 
 
 // Set name and flags
-const char* ReduceCommand::kName = "vuwReduceCommand";
+const char* ReduceCommand::kName = "salientReduce";
 const char* ReduceCommand::kStartFlagShort = "-s";
 const char* ReduceCommand::kStartFlagLong = "-start";
 const char* ReduceCommand::kFinishFlagShort = "-f";
@@ -53,7 +53,6 @@ void DisplayHelp() {
 
 MStatus ReduceCommand::doIt(const MArgList& args) {
     MStatus status;
-    Log::print("COMPUTING INTERPOLATION");
     
     // Process arguments
     status = GatherCommandArguments(args);
