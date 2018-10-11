@@ -23,7 +23,7 @@
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MAngle.h>
 
-#include <Eigen/Dense>
+#include "../eigen-git-mirror/Eigen/Eigen"
 
 #include "../SalientPosesPerformance/src/Interpolator.hpp"
 #include "MayaUtils.hpp"

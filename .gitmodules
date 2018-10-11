@@ -4,3 +4,6 @@
 [submodule "cgcmake"]
 	path = cgcmake
 	url = https://github.com/richard-roberts/cgcmake.git
+[submodule "eigen-git-mirror"]
+	path = eigen-git-mirror
+	url = https://github.com/eigenteam/eigen-git-mirror.git

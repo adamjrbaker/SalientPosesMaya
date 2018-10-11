@@ -5,10 +5,9 @@ project(SalientPosesMaya)
 set(PROJECT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT})
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cgcmake/modules)
 
-# Add the Maya land Eigen (header-only libraries)
+# Add the OpenCL and Maya libraries
 find_package(OpenCL REQUIRED)
 find_package(Maya REQUIRED)
-find_package(Eigen3 REQUIRED)
 
 # Set the install prefix based on Maya
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR})

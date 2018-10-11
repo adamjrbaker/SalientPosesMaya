@@ -42,7 +42,7 @@ add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 # Include Maya, OpenCL, and Eigen source files
 target_include_directories(${PROJECT_NAME} PRIVATE Maya::Maya)
 include_directories(${OpenCL_INCLUDE_DIRS})
-include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/eigen-git-mirror/Eigen)
 
 # Link Maya and OpenCL (Eigen is header only)
 set(LIBS ${OpenCL_LIBRARY} Maya::Maya)
