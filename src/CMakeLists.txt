@@ -29,6 +29,8 @@ set(SOURCE_FILES
     "../SalientPosesPerformance/src/Interpolator.hpp"
     "MayaUtils.cpp"
     "MayaUtils.hpp"
+    "OpenCLInfoCommand.cpp"
+    "OpenCLInfoCommand.hpp"
     "ReduceCommand.cpp"
     "ReduceCommand.hpp"
 	"SelectCommand.cpp"
