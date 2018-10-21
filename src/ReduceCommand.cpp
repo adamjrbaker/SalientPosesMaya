@@ -23,7 +23,7 @@
 #include <maya/MFnTypedAttribute.h>
 #include <maya/MAngle.h>
 
-#include <Eigen/Dense>
+#include "../eigen-git-mirror/Eigen/Eigen"
 
 #include "../SalientPosesPerformance/src/Interpolator.hpp"
 #include "MayaUtils.hpp"
@@ -33,7 +33,7 @@
 
 
 // Set name and flags
-const char* ReduceCommand::kName = "vuwReduceCommand";
+const char* ReduceCommand::kName = "salientReduce";
 const char* ReduceCommand::kStartFlagShort = "-s";
 const char* ReduceCommand::kStartFlagLong = "-start";
 const char* ReduceCommand::kFinishFlagShort = "-f";
@@ -53,7 +53,6 @@ void DisplayHelp() {
 
 MStatus ReduceCommand::doIt(const MArgList& args) {
     MStatus status;
-    Log::print("COMPUTING INTERPOLATION");
     
     // Process arguments
     status = GatherCommandArguments(args);
@@ -120,7 +119,8 @@ MStatus ReduceCommand::doIt(const MArgList& args) {
                 
             }
             
-            Interpolator interpolator = Interpolator::fromData(data, _selection, nFrames, _start);
+            std::string name = curve.name().asChar();
+            Interpolator interpolator = Interpolator::fromData(name, data, _selection, nFrames, _start);
             std::vector<Cubic> cubics = interpolator.getCubics();
             
             // Remove non-keyframes
