@@ -11,7 +11,7 @@ artists to run Salient Poses directly inside of Maya.
 
 Grab the [latest release](https://github.com/richard-roberts/SalientPosesMaya/releases/tag/0.2), [add it to Maya](#getting-started), and then follow along with the [video tutorial](https://www.youtube.com/watch?v=WzFoJoXZO-g)!
 
-[![Video Tutorial](https://i9.ytimg.com/vi/WzFoJoXZO-g/mq2.jpg?sqp=CMjwpN4F&rs=AOn4CLAFx1E8wlb4N5iNPhrV22adZhBFBQ)](https://www.youtube.com/watch?v=WzFoJoXZO-g)
+[![Video Tutorial](http://richardroberts.co.nz/images/hosting/spmv0.2_tutorial_thumbnail.jpg)](https://www.youtube.com/watch?v=WzFoJoXZO-g)
 
 ## Table Of Contents
 
