@@ -108,7 +108,7 @@ class SalientPosesDialog(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             
             # Start frame box
             hbox = salient_utils.UIBuilder.horizontal_box(add_to=vbox)
-            salient_utils.UIBuilder.label(hbox, "Start End")
+            salient_utils.UIBuilder.label(hbox, "Start Frame")
             self.start_edit = salient_utils.UIBuilder.line_edit(hbox, str(start))
 
             # End frame box
