@@ -29,21 +29,29 @@ class SavedAnimation:
         self.animation = {}
         for object in self.objects:
             data = {}
-            curves = [x for x in cmds.listConnections(object) if "animCurve" in cmds.nodeType(x)]
-            for curve in curves:
-                times = cmds.keyframe(curve, query=True, time=(self.start, self.end))
-                values = [cmds.keyframe(curve, time=(t, t), eval=True, query=True)[0] for t in times]
-                inWeights = [cmds.keyTangent(curve, query=True, time=(t, t), inWeight=True)[0] for t in times]
-                inAngles = [cmds.keyTangent(curve, query=True, time=(t, t), inAngle=True)[0] for t in times]
-                outWeights = [cmds.keyTangent(curve, query=True, time=(t, t), outWeight=True)[0] for t in times]
-                outAngles = [cmds.keyTangent(curve, query=True, time=(t, t), outAngle=True)[0] for t in times]
+            connections = cmds.listConnections(object)
+            if connections is None:
+                return
 
-                data[curve] = {
-                    "keys" : list(zip(times, values)),
-                    "ins" : list(zip(inWeights, inAngles)),
-                    "outs" : list(zip(outWeights, outAngles))
-                }
+            curves = [x for x in connections if "animCurve" in cmds.nodeType(x)]
+            for curve in curves:
                 
+                times = cmds.keyframe(curve, query=True, time=(self.start, self.end))
+                if times is None:
+                    data[curve] = None
+                else:                    
+                    values = [cmds.keyframe(curve, time=(t, t), eval=True, query=True)[0] for t in times]
+                    inWeights = [cmds.keyTangent(curve, query=True, time=(t, t), inWeight=True)[0] for t in times]
+                    inAngles = [cmds.keyTangent(curve, query=True, time=(t, t), inAngle=True)[0] for t in times]
+                    outWeights = [cmds.keyTangent(curve, query=True, time=(t, t), outWeight=True)[0] for t in times]
+                    outAngles = [cmds.keyTangent(curve, query=True, time=(t, t), outAngle=True)[0] for t in times]
+
+                    data[curve] = {
+                        "keys" : list(zip(times, values)),
+                        "ins" : list(zip(inWeights, inAngles)),
+                        "outs" : list(zip(outWeights, outAngles))
+                    }
+
             self.animation[object] = data
 
     def revert(self):
@@ -51,6 +59,11 @@ class SavedAnimation:
             data = self.animation[object]
             curves = data.keys()
             for curve in curves:
+
+                # Curve contained no keyframe data when saved, so cut whatever is there now
+                if data[curve] == None:
+                    cmds.cutKey(curve, time=(self.start, self.end))
+                    return
 
                 keys = data[curve]["keys"]
                 times = [k[0] for k in keys]
