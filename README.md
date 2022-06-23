@@ -7,6 +7,8 @@ into easy-to-edit keyframe animation.
 This project contains a **Maya plug-in** that enables
 artists to run Salient Poses directly inside of Maya.
 
+![Salient Thumbnail (Original)](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/salientPosesThumb.png?raw=true)
+
 # Want to jump right in?
 
 Grab the [latest release](https://github.com/richard-roberts/SalientPosesMaya/releases/tag/0.2), [add it to Maya](#getting-started), and then follow along with the [video tutorial](https://www.youtube.com/watch?v=WzFoJoXZO-g)!
@@ -49,11 +51,11 @@ Say we start of with a mocap animation (here's one that I grabbed from [Adobe's 
 
 While the animation looks nice, it actually has lots of [keyframes](https://en.wikipedia.org/wiki/Key_frame). Let's take a look at the keyframes, visualized here as blue outlines. There are so many keyrames; one for every frame. In this case there are 60 per second!
 
-![Salient Example (Mocap Keyframes)](http://richardroberts.co.nz/images/hosting/Salient_Example_2.png)
+![Salient Example (Mocap Keyframes)](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/Salient_Example_2.png?raw=true)
 
 While having all of these keyframes involved is necessary during recording - we want to **capture** the actor's performance precisely - they involve a large memory footprint (problematic for video games) and make the motion hard to change (problematic for motion editors). Here's a picture of just **some** of the data for the animation above. Can you imagine loading all the animations for a protagonist character in a video game (there are 1000s of unique clips for a main character in recent triple-A games)? How about trying to adjust the motion using this data?
 
-![Salient Example (Mocap Data)](http://richardroberts.co.nz/images/hosting/Salient_Example_3.png)
+![Salient Example (Mocap Data)](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/Salient_Example_3.png?raw=true)
 
 #### The Solution
 
@@ -61,21 +63,21 @@ To address this problem, I've developed a new algorithm for compressing and edit
 
 More precisely, the algorithm works by finding potential set of important - that is, "salient" - poses. In each set of poses, the choice of poses has been carefully determined so that it most accurately reconstructs the original motion. Once found, we can create a new animation using just these poses. Here's an illustration of one possible optimal set of poses selected for the animation above:
 
-![Salient Example (Selected Keyframes)](http://richardroberts.co.nz/images/hosting/Salient_Example_4.png)
+![Salient Example (Selected Keyframes)](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/Salient_Example_4.png?raw=true)
 
 Comparing these poses to the original motion-capture, we can already see the benefit: the motion can be expressed with fewer poses. Having fewer poses in the animation means a **smaller memory footprint** and also that **editors invest less time** for editing (fewer changes are required). And, furthermore, the data is now much sparser than before:
 
-![Salient Example (Data Before And After)](http://richardroberts.co.nz/images/hosting/Salient_Example_5.png)
+![Salient Example (Data Before And After)](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/Salient_Example_5.png?raw=true)
 
 With all that done, the last step is to create a new motion using on the selected poses. To do this the algorithm performs [inbetweening](https://en.wikipedia.org/wiki/Inbetweening), which is the process of deciding how to transition between the poses to best recreate the original animation. It's hard to describe exactly how the in-betweening works, but you might imagine it as recreating the curve traced by each of the character's joints.
 
-![Salient Example (Data Before And After)](http://richardroberts.co.nz/images/hosting/Salient_Example_6.png)
+![Salient Example (Data Before And After)](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/Salient_Example_6.png?raw=true)
 
 #### Before and After
 
 To sum the whole process up, here's a look at the original animation (right side) and the same animation after compression with Salient Poses (left side). In this particular case the compressed animation contains only 7 keyframes (those illustrated above), paired with the reconstructed curves. Compared to the original animation, with 112 keyframes, that's around 94% compression!
 
-![Salient Example (Anim Before And After)](http://richardroberts.co.nz/images/hosting/Salient_Example_7.gif)
+![Salient Example (Anim Before And After)](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/Salient_Example_7.gif?raw=true)
 
 
 # What's in this project?
