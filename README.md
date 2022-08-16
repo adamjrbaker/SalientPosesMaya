@@ -7,7 +7,7 @@ into easy-to-edit keyframe animation.
 This project contains a **Maya plug-in** that enables
 artists to run Salient Poses directly inside of Maya.
 
-** Please note I am not the creator of this tool I only maintain the tool which was developed by Richard Roberts. **
+**Please note I am not the creator of this tool I only maintain the tool which was developed by Richard Roberts.**
 
 
 ![Salient Thumbnail (Original)](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/salientPosesThumb.png?raw=true)
