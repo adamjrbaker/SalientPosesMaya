@@ -11,26 +11,22 @@ endif()
 
 # Include our own source files
 set(SOURCE_FILES
-    "../SalientPosesPerformance/src/common.cpp"
-    "../SalientPosesPerformance/src/common.hpp"
-    "../SalientPosesPerformance/src/AnimationProxy.cpp"
-    "../SalientPosesPerformance/src/AnimationProxy.hpp"
-    "../SalientPosesPerformance/src/OpenCLProcess.cpp"
-    "../SalientPosesPerformance/src/OpenCLProcess.hpp"
-    "../SalientPosesPerformance/src/ErrorTable.cpp"
-    "../SalientPosesPerformance/src/ErrorTable.hpp"
-    "../SalientPosesPerformance/src/SelectionProxy.cpp"
-    "../SalientPosesPerformance/src/SelectionProxy.hpp"
-    "../SalientPosesPerformance/src/Selector.cpp"
-    "../SalientPosesPerformance/src/Selector.hpp"
-    "../SalientPosesPerformance/src/SelectionManager.cpp"
-    "../SalientPosesPerformance/src/SelectionManager.hpp"
-    "../SalientPosesPerformance/src/Interpolator.cpp"
-    "../SalientPosesPerformance/src/Interpolator.hpp"
+    "common.cpp"
+    "common.hpp"
+    "AnimationProxy.cpp"
+    "AnimationProxy.hpp"
+    "ErrorTable.cpp"
+    "ErrorTable.hpp"
+    "SelectionProxy.cpp"
+    "SelectionProxy.hpp"
+    "Selector.cpp"
+    "Selector.hpp"
+    "SelectionManager.cpp"
+    "SelectionManager.hpp"
+    "Interpolator.cpp"
+    "Interpolator.hpp"
     "MayaUtils.cpp"
     "MayaUtils.hpp"
-    "OpenCLInfoCommand.cpp"
-    "OpenCLInfoCommand.hpp"
     "ReduceCommand.cpp"
     "ReduceCommand.hpp"
 	"SelectCommand.cpp"
@@ -54,8 +50,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_FLAGS})
 # Format as a Maya plugin.
 MAYA_PLUGIN(${PROJECT_NAME})
 
-# Include name and version meta-data
-install(TARGETS ${PROJECT_NAME} ${MAYA_TARGET_TYPE} DESTINATION ./plug-ins/SalientPoses)
-
-# Finally, copy OpenCL programs into the build's directory.
-install(FILES "../SalientPosesPerformance/src/kernel.cl" DESTINATION ./plug-ins/SalientPoses)
+# Setup the maya module
+install(DIRECTORY "../maya/" DESTINATION ./SalientPoses)
+install(TARGETS ${PROJECT_NAME} ${MAYA_TARGET_TYPE} DESTINATION ./SalientPoses/plug-ins)
