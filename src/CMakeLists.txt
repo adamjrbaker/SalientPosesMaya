@@ -51,5 +51,5 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_FLAGS})
 MAYA_PLUGIN(${PROJECT_NAME})
 
 # Setup the maya module
-install(DIRECTORY "../maya/" DESTINATION ./SalientPoses)
+install(DIRECTORY "../maya/" DESTINATION ./SalientPosesMaya)
 install(TARGETS ${PROJECT_NAME} ${MAYA_TARGET_TYPE} DESTINATION ./SalientPoses/plug-ins)

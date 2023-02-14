@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(SalientPoses)
+project(SalientPosesMaya)
 
 # Set up the build environment's variables
 set(PROJECT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT})
