@@ -108,7 +108,7 @@ From there, copy and paste the `scripts` directory into your Maya project's scri
 
 Alternatively, if you want the plug-in to be available across all of your projects, you can configure Maya's `MAYA_PLUG_IN_PATH` to include the directory containing the compiled plug-in file and its `PYTHONPATH` to include the scripts folder. See [this page](https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2018/ENU/Maya-EnvVar/files/GUID-8EFB1AC1-ED7D-4099-9EEE-624097872C04-htm.html) if you're not familiar with configuring Maya's environment variables.
 
-![Setting Maya's environment variables](http://richardroberts.co.nz/images/hosting/spm-setting-maya-env.png) 
+![Setting Maya's environment variables](https://github.com/adamjrbaker/SalientPosesMaya/blob/master/docs/Salient_MayaEnv_1.png?raw=true)
 
 ## Usage
 
